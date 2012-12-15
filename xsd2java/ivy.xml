@@ -1,0 +1,8 @@
+<ivy-module version="2.0">
+    <info organisation="com.example" module="xsd2java" />
+    <dependencies>
+        <dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.0.5" transitive="false" />
+        <dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.0.5" transitive="false" />
+        <dependency org="javax.xml.bind" name="jaxb-api" rev="2.0" transitive="false" />
+    </dependencies>
+</ivy-module>
