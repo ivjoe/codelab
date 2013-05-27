@@ -16,13 +16,13 @@ public class XMLUtilsTest {
 
     @Test
     public void bean2XMLTest() throws Exception {
-        String xml = XMLUtils.bean2XML(getNote());
+        String xml = XMLUtils.marshal(getNote());
         System.out.println("bean2XMLTest: " + xml + "\n");
     }
 
     @Test
     public void bean2XMLTestWithNamespace() throws Exception {
-        String xml = XMLUtils.bean2XML(getNote(), "aaa", "bbb");
+        String xml = XMLUtils.marshal(getNote(), "aaa", "bbb");
         System.out.println("bean2XMLTestWithNamespace: " + xml + "\n");
     }
 
@@ -47,26 +47,26 @@ public class XMLUtilsTest {
 
     @Test
     public void xml2BeanTestFromFile() throws Exception {
-        Note note = XMLUtils.xml2Bean(getXML(), Note.class);
+        Note note = XMLUtils.unmarshal(getXML(), Note.class);
         System.out.println("xml2BeanTestFromFile: " + note + "\n");
     }
 
     @Test
     public void xml2BeanTestFromInputSource() throws Exception {
-        Note note = XMLUtils.xml2Bean(new InputSource(new FileInputStream(getXML())), Note.class);
+        Note note = XMLUtils.unmarshal(new InputSource(new FileInputStream(getXML())), Note.class);
         System.out.println("xml2BeanTestFromInputSource: " + note + "\n");
     }
 
     @Test
     public void xml2BeanTestFromInputStream() throws Exception {
-        Note note = XMLUtils.xml2Bean(new FileInputStream(getXML()), Note.class);
+        Note note = XMLUtils.unmarshal(new FileInputStream(getXML()), Note.class);
         System.out.println("xml2BeanTestFromInputStream: " + note + "\n");
     }
 
     @Test
     public void xml2BeanTestFromString() throws Exception {
         String xml = XMLUtils.xml2String(new FileInputStream(getXML()));
-        Note note = XMLUtils.xml2Bean(xml, Note.class);
+        Note note = XMLUtils.unmarshal(xml, Note.class);
         System.out.println("xml2BeanTestFromString: " + note + "\n");
     }
 

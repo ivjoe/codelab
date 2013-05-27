@@ -2,11 +2,12 @@ package joni.xml.xmlutils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -17,6 +18,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -32,6 +34,8 @@ import org.xml.sax.SAXException;
  * @author Jonatan Ivanov
  */
 public class XMLUtils {
+    private static Map<Class<?>, JAXBContext> contextCache = new HashMap<>();
+
     public static String xml2String(File file) throws TransformerException, ParserConfigurationException, SAXException, IOException {
         return document2String(xml2Document(file));
     }
@@ -43,7 +47,6 @@ public class XMLUtils {
     public static String document2String(Document doc) throws TransformerException {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
-
         StringWriter buffer = new StringWriter();
         transformer.transform(new DOMSource(doc), new StreamResult(buffer));
 
@@ -70,47 +73,137 @@ public class XMLUtils {
         return DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    public static <T> T xml2Bean(String xml, Class<T> clazz) throws JAXBException {
-        return xml2Bean(new ByteArrayInputStream(xml.getBytes()), clazz);
+    /**
+     * Unmarshals an XML ({@link String}) to a bean.
+     * 
+     * @param xml {@link String}
+     * @param clazz {@link Class}
+     * @return bean
+     * @throws JAXBException
+     */
+    public static <T> T unmarshal(String xml, Class<T> clazz) throws JAXBException {
+        return unmarshal(new ByteArrayInputStream(xml.getBytes()), clazz);
     }
 
-    public static <T> T xml2Bean(File file, Class<T> clazz) throws JAXBException, IOException {
-        return xml2Bean(new FileInputStream(file), clazz);
+    /**
+     * Unmarshals an XML ({@link File}) to a bean.
+     * 
+     * @param file {@link File}
+     * @param clazz {@link Class}
+     * @return bean
+     * @throws JAXBException
+     * @throws IOException
+     */
+    public static <T> T unmarshal(File file, Class<T> clazz) throws JAXBException, IOException {
+        return unmarshal(new StreamSource(file), clazz);
     }
 
-    public static <T> T xml2Bean(InputSource is, Class<T> clazz) throws JAXBException {
-        return xml2Bean(is.getByteStream(), clazz);
+    /**
+     * Unmarshals an XML ({@link InputSource}) to a bean.
+     * 
+     * @param is {@link InputSource}
+     * @param clazz {@link Class}
+     * @return bean
+     * @throws JAXBException
+     */
+    public static <T> T unmarshal(InputSource is, Class<T> clazz) throws JAXBException {
+        return unmarshal(is.getByteStream(), clazz);
     }
 
-    public static <T> T xml2Bean(InputStream is, Class<T> clazz) throws JAXBException {
-        return getUnmarshaller(clazz).unmarshal(new StreamSource(is), clazz).getValue();
+    /**
+     * Unmarshals an XML ({@link InputStream}) to a bean.
+     * 
+     * @param is {@link InputStream}
+     * @param clazz {@link Class}
+     * @return bean
+     * @throws JAXBException
+     */
+    public static <T> T unmarshal(InputStream is, Class<T> clazz) throws JAXBException {
+        return unmarshal(new StreamSource(is), clazz);
+    }
+    
+    /**
+     * Unmarshals an XML ({@link Source}) to a bean.
+     * 
+     * @param source {@link Source}
+     * @param clazz {@link Class}
+     * @return bean
+     * @throws JAXBException
+     */
+    public static <T> T unmarshal(Source source, Class<T> clazz) throws JAXBException {
+        return createUnmarshaller(clazz).unmarshal(source, clazz).getValue();
     }
 
-    public static <T> String bean2XML(T bean) throws JAXBException {
+    /**
+     * Marshals a bean to XML.
+     * 
+     * @param bean
+     * @return XML {@link String}
+     * @throws JAXBException
+     */
+    public static <T> String marshal(T bean) throws JAXBException {
         StringWriter stw = new StringWriter();
-        getMarshaller(bean.getClass()).marshal(bean, stw);
-
+        createMarshaller(bean.getClass()).marshal(bean, stw);
+        
         return stw.toString();
     }
 
+    /**
+     * Marshals a bean to XML.
+     * 
+     * @param bean
+     * @param namespaceURI
+     * @param localPart
+     * @return XML {@link String}
+     * @throws JAXBException
+     */
     @SuppressWarnings("unchecked")
-    public static <T> String bean2XML(T bean, String namespaceURI, String localPart) throws JAXBException {
+    public static <T> String marshal(T bean, String namespaceURI, String localPart) throws JAXBException {
         QName qName = new QName(namespaceURI, localPart);
         Class<T> clazz = (Class<T>) bean.getClass();
-        JAXBElement<T> jaxbElement = new JAXBElement<T>(qName, clazz, bean);
-
-        Marshaller marshaller = getMarshaller(clazz);
+        Marshaller marshaller = createMarshaller(clazz);
         Writer stw = new StringWriter();
-        marshaller.marshal(jaxbElement, stw);
-
+        marshaller.marshal(new JAXBElement<T>(qName, clazz, bean), stw);
+        
         return stw.toString();
     }
 
-    private static <T> Unmarshaller getUnmarshaller(Class<T> clazz) throws JAXBException {
-        return JAXBContext.newInstance(clazz).createUnmarshaller();
+    /**
+     * Creates an {@link Unmarshaller} for the given {@link Class}.
+     * 
+     * @param clazz {@link Class}
+     * @return {@link Unmarshaller}
+     * @throws JAXBException
+     */
+    private static <T> Unmarshaller createUnmarshaller(Class<T> clazz) throws JAXBException {
+        return getContext(clazz).createUnmarshaller();
     }
 
-    private static <T> Marshaller getMarshaller(Class<T> clazz) throws JAXBException {
-        return JAXBContext.newInstance(clazz).createMarshaller();
+    /**
+     * Creates a {@link Marshaller} for the given {@link Class}.
+     * 
+     * @param clazz {@link Class}
+     * @return {@link Marshaller}
+     * @throws JAXBException
+     */
+    private static <T> Marshaller createMarshaller(Class<T> clazz) throws JAXBException {
+        return getContext(clazz).createMarshaller();
+    }
+
+    /**
+     * Returns the corresponding {@link JAXBContext} for the given {@link Class}.
+     * 
+     * @param clazz {@link Class}
+     * @return {@link JAXBContext}
+     * @throws JAXBException
+     */
+    private static <T> JAXBContext getContext(Class<T> clazz) throws JAXBException {
+        synchronized (contextCache) {
+            if (!contextCache.containsKey(clazz)) {
+                contextCache.put(clazz, JAXBContext.newInstance(clazz));
+            }
+        }
+        
+        return contextCache.get(clazz);
     }
 }
