@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +33,7 @@ public class Main {
      * @throws Exception
      * @throws
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(WORK_QUEUE_CAPACITY);
         ExecutorService executorService = new ThreadPoolExecutor(CORE_THREADPOOL_SIZE, MAX_THREADPOOL_SIZE, KEEP_ALIVE_TIME, KEEP_ALIVE_UNIT, workQueue);
 
@@ -49,7 +50,7 @@ public class Main {
         return tasks;
     }
 
-    private static <V, T extends Callable<V>> void work(Executor executor, Collection<T> tasks) {
+    private static <V, T extends Callable<V>> void work(final Executor executor, final Collection<T> tasks) {
         CompletionService<V> service = new ExecutorCompletionService<V>(executor);
 
         for (T task : tasks) {
@@ -57,15 +58,20 @@ public class Main {
         }
 
         for (int i = 0; i < tasks.size(); i++) {
+            Future<V> future = null;
             try {
-                V result = service.take().get();
+                future = service.take();
+                V result = future.get();
                 System.out.println(String.valueOf(result));
             }
             catch (InterruptedException ie) {
-                System.out.println("Thread is interrupted: " + ie.getMessage());
+                System.err.println("Thread is interrupted: " + ie.getMessage());
             }
             catch (ExecutionException ee) {
-                System.out.println("Error during execution: " + ee.getMessage());
+                System.err.println("Error during execution: " + ee.getMessage());
+            }
+            finally {
+                future.cancel(true);
             }
         }
     }
