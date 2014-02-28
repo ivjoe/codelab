@@ -1,0 +1,23 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.projectlombok:lombok:0.12.0"
+    compile "commons-io:commons-io:2.4"
+    compile "org.eclipse.jetty:jetty-client:9.0.6.v20130930"
+    compile "com.fasterxml.jackson.core:jackson-core:2.2.3"
+    compile "com.fasterxml.jackson.core:jackson-annotations:2.2.3"
+    compile "com.fasterxml.jackson.core:jackson-databind:2.2.3"
+    compile "org.apache.maven:maven-artifact:3.1.1"
+}
+
+task clear {
+    dependsOn clean, cleanEclipse
+    delete 'bin'
+    delete '.settings'
+    delete '.gradle'
+}

@@ -1,0 +1,9 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+task clear {
+    dependsOn clean, cleanEclipse
+    delete 'bin'
+    delete '.settings'
+    delete '.gradle'
+}

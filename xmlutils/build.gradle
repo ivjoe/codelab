@@ -1,0 +1,17 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+task clear {
+    dependsOn clean, cleanEclipse
+    delete 'bin'
+    delete '.settings'
+    delete '.gradle'
+}

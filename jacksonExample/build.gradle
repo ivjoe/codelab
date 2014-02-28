@@ -1,0 +1,17 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.fasterxml.jackson.core:jackson-databind:2.1.0"
+}
+
+task clear {
+    dependsOn clean, cleanEclipse
+    delete 'bin'
+    delete '.settings'
+    delete '.gradle'
+}
