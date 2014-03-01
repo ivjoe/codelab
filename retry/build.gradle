@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework:spring-context:4.0.2.RELEASE'
+    compile 'org.aspectj:aspectjrt:1.7.4'
+    compile 'org.aspectj:aspectjweaver:1.7.4'
+    
+    testCompile 'junit:junit:4.11'
+}
+
+task clear {
+    dependsOn clean, cleanEclipse
+    delete 'bin'
+    delete '.settings'
+    delete '.gradle'
+}
