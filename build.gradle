@@ -1,0 +1,4 @@
+task clear {
+    delete '.settings'
+    delete '.gradle'
+}

@@ -1,0 +1,1 @@
+include 'cache', 'completionServiceExample', 'dependencyChecker', 'httpclient', 'jacksonExample', 'jmxExample', 'retry', 'sysinfo', 'xmlutils'
