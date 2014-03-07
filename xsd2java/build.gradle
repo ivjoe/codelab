@@ -1,0 +1,26 @@
+apply plugin: 'jaxb'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.4'
+}
+
+task clear {
+    dependsOn clean
+    delete 'bin'
+    delete '.settings'
+    delete '.gradle'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'no.entitas.gradle.jaxb:gradle-jaxb-plugin:2.0'
+    }
+}

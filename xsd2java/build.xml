@@ -1,8 +1,8 @@
 <project name="xsd2java" default="jaxb-gen" xmlns:ivy="antlib:org.apache.ivy.ant">
     <property name="lib.dir" value="lib" />
-    <property name="xsd.dir" value="xsd" />
-    <property name="src.dir" value="src" />
-    <property name="bin.dir" value="bin" />
+    <property name="xsd.dir" value="src/main/xsd" />
+    <property name="source.dir" value="build/source" />
+    <property name="bin.dir" value="build/bin" />
     <property name="base_pckg" value="com.example" />
 
     <target name="jaxb-gen" depends="clean, resolve">
@@ -11,16 +11,16 @@
                 <fileset dir="${lib.dir}" includes="**/*.jar" />
             </classpath>
         </taskdef>
-        <mkdir dir="${src.dir}" />
-        <xjc destdir="${src.dir}" package="${base_pckg}">
+        <mkdir dir="${source.dir}" />
+        <xjc destdir="${source.dir}" package="${base_pckg}">
             <schema dir="${xsd.dir}" includes="**/*.xsd" />
         </xjc>
         <mkdir dir="${bin.dir}" />
-        <javac srcdir="${src.dir}" destdir="${bin.dir}" />
+        <javac srcdir="${source.dir}" destdir="${bin.dir}" />
     </target>
 
     <target name="clean">
-        <delete dir="${src.dir}" />
+        <delete dir="${source.dir}" />
         <delete dir="${bin.dir}" />
     </target>
 
