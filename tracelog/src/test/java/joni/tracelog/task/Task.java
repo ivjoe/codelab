@@ -5,11 +5,11 @@ package joni.tracelog.task;
  */
 public interface Task {
 
-    void doSomethingVoid();
+    void doSomethingVoid() throws InterruptedException;
 
-    int getInt(final int param);
+    int getInt(final int param) throws InterruptedException;
 
-    String getString(final String param);
+    String getString(final String param) throws InterruptedException;
 
-    void throwException() throws IndexOutOfBoundsException;
+    void throwException() throws IndexOutOfBoundsException, InterruptedException;
 }

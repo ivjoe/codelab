@@ -3,6 +3,7 @@ package joni.tracelog;
 import joni.tracelog.task.Task;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -30,8 +31,8 @@ public class TracelogDemo {
         final Task task = context.getBean("task", Task.class);
 
         task.doSomethingVoid();
-        task.getInt(42);
-        task.getString("a");
+        Assert.assertEquals(42, task.getInt(42));
+        Assert.assertEquals("a", task.getString("a"));
         task.throwException();
     }
 }
